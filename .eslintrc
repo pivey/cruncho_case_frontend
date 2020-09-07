@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "wesbos"
+  ],
+  "rules":  {
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "react/jsx-props-no-spreading": [0, {
+      "html": "ignore",
+      "custom": "ignore"
+  }]
+  },
+  "settings": {
+    "import/resolver": {
+        "node": {
+            "extensions": [".js", ".jsx", ".ts", ".tsx"],
+            "moduleDirectory": ["node_modules", "src/"]
+        },
+    },
+}
+}
