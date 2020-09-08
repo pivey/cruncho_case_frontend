@@ -25,6 +25,19 @@ const appReducer = (state = initialState, action) => {
         ...state,
         nearbyRestaurantData: payload,
       };
+    case 'SET_SELECTED_RESTSURANT':
+      return {
+        ...state,
+        selectedRestaurant: payload,
+      };
+    case 'SET_DISTANCE':
+      return {
+        ...state,
+        selectedRestaurant: {
+          ...state.selectedRestaurant,
+          distance: payload,
+        },
+      };
     default:
       return state;
   }

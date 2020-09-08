@@ -107,11 +107,7 @@ function App({ dispatch, userLocation, nearbyRestaurantData }) {
         <Header>
           <StyledIcon />
         </Header>
-        <DisplayMapFC
-          userLat={userLat}
-          userLong={userLong}
-          nearbyRestaurantData={nearbyRestaurantData}
-        />
+        <DisplayMapFC />
         <InfoPanel />
       </PageContainer>
     </>

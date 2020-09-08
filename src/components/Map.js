@@ -1,14 +1,16 @@
 import * as React from 'react';
 import { useRef, useLayoutEffect } from 'react';
+import { connect } from 'react-redux';
 import locationLogo from '../assets/icons/locationIcon.png';
 import restaurantLogo from '../assets/icons/foodIcon.png';
 import barLogo from '../assets/icons/bar.png';
-import selectedRestaurant from '../assets/icons/selectedRestaurantIcon.png';
+import selectedRestaurantLogo from '../assets/icons/selectedRestaurantIcon.png';
 import selectedBar from '../assets/icons/selectedBarIcon.png';
 
 const mapStyles = { height: '100%', width: '100%' };
 
-const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
+const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
+  const { latitude: userLat, longitude: userLong } = userLocation;
   const mapRef = useRef(null);
   const { H } = window;
 
@@ -23,10 +25,11 @@ const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
       // Create an icon, an object holding the latitude and longitude, and a marker:
       const icon = new H.map.Icon(locationLogo);
       const coords = { lat: userLat, lng: userLong };
-      const marker = new H.map.Marker(coords, { icon });
+      const userPos = new H.map.Marker(coords, { icon });
+      userPos.id = 'userPosition';
 
       // Add the marker to the map and center the map at the location of the marker:
-      map.addObject(marker);
+      map.addObject(userPos);
       map.setCenter(coords);
       map.setZoom(15);
     };
@@ -60,7 +63,7 @@ const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
         },
         restaurantMarker: {
           id: 'restaurantMarkerSelected',
-          icon: selectedRestaurant,
+          icon: selectedRestaurantLogo,
         },
         restaurantMarkerSelected: {
           id: 'restaurantMarker',
@@ -74,6 +77,22 @@ const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
           marker.setIcon(newIcon);
           marker.id = markerReference[e.target.id].id;
           const mapObjects = hMap.getObjects();
+          dispatch({
+            type: 'SET_SELECTED_RESTSURANT',
+            payload: nearbyRestaurantData[e.target.Di],
+          });
+
+          const userPositionMarker = mapObjects.find(
+            mark => mark.id === 'userPosition'
+          );
+
+          const distance = e.target.b.distance(userPositionMarker.b);
+
+          dispatch({
+            type: 'SET_DISTANCE',
+            payload: `${Math.floor(distance) / 100}km`,
+          });
+
           const found = mapObjects.find(el => {
             const isSelected =
               el.id === 'restaurantMarkerSelected' ||
@@ -128,6 +147,7 @@ const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
     H.service.Platform,
     H.ui.InfoBubble,
     H.ui.UI,
+    dispatch,
     mapRef,
     nearbyRestaurantData,
     userLat,
@@ -137,4 +157,9 @@ const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
   return <div className="map" ref={mapRef} style={mapStyles} />;
 };
 
-export default DisplayMapFC;
+const mapStateToProps = state => ({
+  nearbyRestaurantData: state.nearbyRestaurantData,
+  userLocation: state.userLocation,
+});
+
+export default connect(mapStateToProps)(DisplayMapFC);
