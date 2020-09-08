@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import axios from 'axios';
 import styled, { createGlobalStyle } from 'styled-components';
+import { connect } from 'react-redux';
 import Header from './components/Header';
 import CrunchoIcon from './components/CrunchoIcon';
-import { DisplayMapFC } from './components/Map';
+import DisplayMapFC from './components/Map';
+import InfoPanel from './components/InfoPanel';
+import saveToLocalStorage from './utils/saveToLocalStorage';
 
 const StyledIcon = styled(CrunchoIcon)`
   border-radius: 5px;
@@ -34,78 +37,8 @@ const PageContainer = styled.div`
   justify-content: center;
 `;
 
-const Button = styled.button.attrs(() => ({
-  type: 'password',
-}))`
-  all: unset;
-  font-size: 2rem;
-  font-weight: bold;
-  color: ${({ buttonColor }) => buttonColor || 'white'};
-  background-color: ${({ bgcColor }) => bgcColor || '#e6173a'};
-  padding: ${({ btnPad }) => btnPad || '1.5rem'};
-  border-radius: 1rem;
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
-// const DialogButton = styled(Button).attrs(() => ({
-//   btnPad: '1rem',
-// }))``;
-
-// const Modal = styled.div`
-//   background-color: rgb(0, 0, 0, 0.6);
-//   position: fixed;
-//   padding: 0;
-//   top: 0;
-//   left: 0;
-//   width: 100vw;
-//   height: 100vh;
-//   z-index: 998;
-//   visibility: ${({ modalOpen }) => (modalOpen ? 'visible' : 'hidden')};
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   justify-content: center;
-// `;
-
-// const GeoConsetDialog = styled.div`
-//   padding: 2.5rem;
-//   border-radius: 2rem;
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   justify-content: center;
-//   background-color: white;
-//   max-width: 30rem;
-//   text-align: center;
-// `;
-
-// const ButtonHolder = styled.div`
-//   display: flex;
-//   width: 100%;
-//   align-items: center;
-//   justify-content: space-around;
-//   margin: 1.5rem 0;
-// `;
-
-function App() {
-  const [loading, setLoading] = useState(false);
-  const [nearbyRestaurantData, setNearbyRestaurantData] = useState([]);
-  const [userLocation, setUserLocation] = useState({
-    longitude: '',
-    latitude: '',
-  });
+function App({ dispatch, userLocation, nearbyRestaurantData }) {
   const { latitude: userLat, longitude: userLong } = userLocation;
-  // const [modalOpen, setModalOpen] = useState(false);
-
-  const setPosition = position => {
-    const { latitude, longitude } = position.coords;
-    setUserLocation({
-      longitude,
-      latitude,
-    });
-  };
 
   const errorHandler = err => {
     if (Number(err.code) === 1) {
@@ -116,6 +49,15 @@ function App() {
   };
 
   useEffect(() => {
+    const setPosition = position => {
+      const { latitude, longitude } = position.coords;
+      saveToLocalStorage('userCoordinates', { latitude, longitude });
+      dispatch({
+        type: 'SET_USERLOCATION',
+        payload: { lat: latitude, lng: longitude },
+      });
+    };
+
     const getPosition = () => {
       if (navigator.geolocation) {
         const options = { timeout: 60000 };
@@ -129,7 +71,6 @@ function App() {
         });
       }
     };
-    // if (loading) {
     const userPosition = async () => {
       const position = await getPosition();
       return position;
@@ -138,8 +79,7 @@ function App() {
       console.log('userPosition', res);
       setPosition(res);
     });
-    // }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const getNearbyRestaurants = async () => {
@@ -153,39 +93,16 @@ function App() {
       }
     };
     if (userLat && userLong) {
-      getNearbyRestaurants(userLocation).then(res =>
-        setNearbyRestaurantData(res.data)
-      );
-      setLoading(false);
+      getNearbyRestaurants(userLocation).then(res => {
+        saveToLocalStorage('nearbyRestaurants', res.data);
+        dispatch({ type: 'SET_RESTAURANT_DATA', payload: res.data });
+      });
     }
-  }, [userLat, userLong, userLocation]);
+  }, [dispatch, userLat, userLocation, userLong]);
 
   return (
     <>
       <GlobalStyle />
-      {/* <Modal modalOpen={modalOpen}>
-        <GeoConsetDialog>
-          <h1>Consent to use of GPS to get your current location?</h1>
-          <ButtonHolder>
-            <DialogButton
-              onClick={() => {
-                setGeoConsent(true);
-                setModalOpen(false);
-              }}
-            >
-              Accept
-            </DialogButton>
-            <DialogButton
-              onClick={() => {
-                setGeoConsent(false);
-                setModalOpen(false);
-              }}
-            >
-              Cancel
-            </DialogButton>
-          </ButtonHolder>
-        </GeoConsetDialog>
-      </Modal> */}
       <PageContainer>
         <Header>
           <StyledIcon />
@@ -195,18 +112,15 @@ function App() {
           userLong={userLong}
           nearbyRestaurantData={nearbyRestaurantData}
         />
-        {/* <Button onClick={() => setLoading(true)}>
-          {loading ? 'Loading...' : 'Click to search'}
-        </Button> */}
-        {/* {userLocation.longitude && userLocation.latitude && (
-          <div>
-            <p>{`latitude: ${userLocation.latitude}`}</p>
-            <p>{`longitude: ${userLocation.longitude}`}</p>
-          </div>
-        )} */}
+        <InfoPanel />
       </PageContainer>
     </>
   );
 }
 
-export default App;
+const mapStateToProps = state => ({
+  nearbyRestaurantData: state.nearbyRestaurantData,
+  userLocation: state.userLocation,
+});
+
+export default connect(mapStateToProps)(App);

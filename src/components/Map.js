@@ -8,9 +8,15 @@ import selectedBar from '../assets/icons/selectedBarIcon.png';
 
 const mapStyles = { height: '100%', width: '100%' };
 
-export const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
+const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
   const mapRef = useRef(null);
   const { H } = window;
+
+  function removeOtherSelectedIcons(element) {
+    const { id } = element;
+    const regex = /Selected/g;
+    return id.replace(regex, '');
+  }
 
   useLayoutEffect(() => {
     const moveToUserPos = map => {
@@ -64,10 +70,23 @@ export const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
       marker.addEventListener(
         'tap',
         e => {
-          console.log(e.target);
           const newIcon = new H.map.Icon(markerReference[e.target.id].icon);
           marker.setIcon(newIcon);
           marker.id = markerReference[e.target.id].id;
+          const mapObjects = hMap.getObjects();
+          const found = mapObjects.find(el => {
+            const isSelected =
+              el.id === 'restaurantMarkerSelected' ||
+              el.id === 'barMarkerSelected';
+            if (el.icon.uid !== e.target.icon.uid && isSelected) {
+              return el;
+            }
+          });
+          if (found) {
+            const foundIcon = new H.map.Icon(markerReference[found.id].icon);
+            found.setIcon(foundIcon);
+            found.id = removeOtherSelectedIcons(found);
+          }
         },
         false
       );
@@ -80,7 +99,7 @@ export const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
     window.addEventListener('resize', () => hMap.getViewPort().resize());
 
     if (nearbyRestaurantData.length > 0) {
-      const allRestaurants = nearbyRestaurantData.map(datapoint => {
+      nearbyRestaurantData.map(datapoint => {
         const isBar = datapoint?.types.includes('bar');
         const icon = new H.map.Icon(isBar ? barLogo : restaurantLogo);
         const marker = new H.map.Marker(datapoint?.location, { icon });
@@ -117,3 +136,5 @@ export const DisplayMapFC = ({ userLat, userLong, nearbyRestaurantData }) => {
 
   return <div className="map" ref={mapRef} style={mapStyles} />;
 };
+
+export default DisplayMapFC;
