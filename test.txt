@@ -1,0 +1,30 @@
+{
+  "location": {
+    "lat": 59.336612,
+    "lng": 18.083726
+  },
+  "open": false,
+  "photos": [
+    {
+      "height": 1960,
+      "html_attributions": [
+        "<a href=\"https://maps.google.com/maps/contrib/114402302041188693747\">Anton Nordenfur</a>"
+      ],
+      "photo_reference": "CkQ0AAAA8XNxBGJ_pyO37fOi442ritim-4UNSIrc_7GFdvWm5tVyDgpSVmeK3znC7tXhSQddZqrS8QkvebHYuba01HCfvBIQ_FF1IWi9OJ5DceI_JTb5FBoUTfspEEU_nGJ31E_bMGnPY3HeXtQ",
+      "width": 4032
+    }
+  ],
+  "icon": "https://maps.gstatic.com/mapfiles/place_api/icons/restaurant-71.png",
+  "name": "Sabai Soong",
+  "placeId": "ChIJd9PwUUWdX0YRV8L6H-_Ct1M",
+  "priceLevel": 2,
+  "rating": 4.2,
+  "types": [
+    "restaurant",
+    "food",
+    "point_of_interest",
+    "establishment"
+  ],
+  "userRatingTotal": 192,
+  "vicinity": "Linnégatan 39B, Stockholm"
+}

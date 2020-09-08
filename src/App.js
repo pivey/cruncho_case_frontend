@@ -91,6 +91,7 @@ const Button = styled.button.attrs(() => ({
 
 function App() {
   const [loading, setLoading] = useState(false);
+  const [nearbyRestaurantData, setNearbyRestaurantData] = useState([]);
   const [userLocation, setUserLocation] = useState({
     longitude: '',
     latitude: '',
@@ -151,15 +152,13 @@ function App() {
         console.log(err.message);
       }
     };
-    // if (userLat && userLong) {
-    //   getNearbyRestaurants(userLocation).then(res =>
-    //     console.log('getNearbyRestaurants res', res.data)
-    //   );
-    //   setLoading(false);
-    // }
-    console.log('userLocation', userLocation);
-    console.log('loading', loading);
-  }, [userLocation, loading, userLat, userLong]);
+    if (userLat && userLong) {
+      getNearbyRestaurants(userLocation).then(res =>
+        setNearbyRestaurantData(res.data)
+      );
+      setLoading(false);
+    }
+  }, [userLat, userLong, userLocation]);
 
   return (
     <>
@@ -191,7 +190,11 @@ function App() {
         <Header>
           <StyledIcon />
         </Header>
-        <DisplayMapFC userLat={userLat} userLong={userLong} />
+        <DisplayMapFC
+          userLat={userLat}
+          userLong={userLong}
+          nearbyRestaurantData={nearbyRestaurantData}
+        />
         {/* <Button onClick={() => setLoading(true)}>
           {loading ? 'Loading...' : 'Click to search'}
         </Button> */}
