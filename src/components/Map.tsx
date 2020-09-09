@@ -86,7 +86,16 @@ const DisplayMapFC = ({
         obj[key];
       marker.addEventListener(
         'tap',
-        (e: any) => {
+        (
+          e: SyntheticEvent & {
+            target: {
+              Di: number;
+              id: string;
+              b: { distance: (input: number) => number };
+              icon: { uid: number };
+            };
+          }
+        ) => {
           const targetId: string = e.target.id;
           // const newIcon = new H.map.Icon(markerReference[targetID].icon);
           const newIcon = new H.map.Icon(
