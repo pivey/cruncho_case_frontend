@@ -106,6 +106,7 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
             found.setIcon(foundIcon);
             found.id = removeOtherSelectedIcons(found);
           }
+          dispatch({ type: 'OPEN_INFO_PANEL' });
         },
         false
       );

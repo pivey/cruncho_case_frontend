@@ -2,7 +2,9 @@ import { createStore } from 'redux';
 import getFromLocalStorage from '../utils/getFromLocalStorage';
 
 const initialState = {
+  closePanel: false,
   nearbyRestaurantData: getFromLocalStorage('nearbyRestaurants') || [],
+  selectedRestaurant: {},
   userLocation: getFromLocalStorage('userCoordinates') || {
     latitude: '',
     longitude: '',
@@ -37,6 +39,16 @@ const appReducer = (state = initialState, action) => {
           ...state.selectedRestaurant,
           distance: payload,
         },
+      };
+    case 'CLOSE_INFO_PANEL':
+      return {
+        ...state,
+        panelOpen: false,
+      };
+    case 'OPEN_INFO_PANEL':
+      return {
+        ...state,
+        panelOpen: true,
       };
     default:
       return state;

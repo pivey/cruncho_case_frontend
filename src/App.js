@@ -21,7 +21,6 @@ html, body {
   min-height: 100vh;
   color: black;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  background-color: mistyrose;
   font-size: 10px;
   box-sizing: border-box;
   overflow: ${({ modalOpen }) => (modalOpen ? 'hidden' : 'scroll')}
