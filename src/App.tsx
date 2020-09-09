@@ -7,6 +7,8 @@ import CrunchoIcon from './components/CrunchoIcon';
 import DisplayMapFC from './components/Map';
 import InfoPanel from './components/InfoPanel';
 import saveToLocalStorage from './utils/saveToLocalStorage';
+import { RootState } from './redux/store';
+import { AppProps } from './types';
 
 const StyledIcon = styled(CrunchoIcon)`
   border-radius: 5px;
@@ -23,7 +25,6 @@ html, body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-size: 10px;
   box-sizing: border-box;
-  overflow: ${({ modalOpen }) => (modalOpen ? 'hidden' : 'scroll')}
 }
 `;
 
@@ -36,10 +37,10 @@ const PageContainer = styled.div`
   justify-content: center;
 `;
 
-function App({ dispatch, userLocation, nearbyRestaurantData }) {
+function App({ dispatch, userLocation }: AppProps) {
   const { latitude: userLat, longitude: userLong } = userLocation;
 
-  const errorHandler = err => {
+  const errorHandler = (err: any): void => {
     if (Number(err.code) === 1) {
       alert('Error: Access is denied!');
     } else if (Number(err.code) === 2) {
@@ -48,7 +49,7 @@ function App({ dispatch, userLocation, nearbyRestaurantData }) {
   };
 
   useEffect(() => {
-    const setPosition = position => {
+    const setPosition = (position: any) => {
       const { latitude, longitude } = position.coords;
       saveToLocalStorage('userCoordinates', { latitude, longitude });
       dispatch({
@@ -59,14 +60,9 @@ function App({ dispatch, userLocation, nearbyRestaurantData }) {
 
     const getPosition = () => {
       if (navigator.geolocation) {
-        const options = { timeout: 60000 };
         return new Promise((res, rej) => {
-          navigator.geolocation.getCurrentPosition(
-            res,
-            rej,
-            errorHandler,
-            options
-          );
+          const options = { timeout: 6000 };
+          navigator.geolocation.getCurrentPosition(res, errorHandler, options);
         });
       }
     };
@@ -92,7 +88,7 @@ function App({ dispatch, userLocation, nearbyRestaurantData }) {
       }
     };
     if (userLat && userLong) {
-      getNearbyRestaurants(userLocation).then(res => {
+      getNearbyRestaurants().then((res: any = {}) => {
         saveToLocalStorage('nearbyRestaurants', res.data);
         dispatch({ type: 'SET_RESTAURANT_DATA', payload: res.data });
       });
@@ -113,7 +109,7 @@ function App({ dispatch, userLocation, nearbyRestaurantData }) {
   );
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootState) => ({
   nearbyRestaurantData: state.nearbyRestaurantData,
   userLocation: state.userLocation,
 });

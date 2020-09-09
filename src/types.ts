@@ -20,13 +20,18 @@ export interface SelectedRestaurant {
   vicinity: string;
 }
 
+export interface UserLocation {
+  latitude: string;
+  longitude: string;
+}
+
 export interface InfoPanelProps {
   dispatch: AppDispatch;
   panelOpen: boolean;
   selectedRestaurant: SelectedRestaurant;
 }
 
-export interface UserLocation {
-  latitude: string;
-  longitude: string;
+export interface AppProps {
+  dispatch: AppDispatch;
+  userLocation: UserLocation;
 }
