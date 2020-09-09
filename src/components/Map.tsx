@@ -1,27 +1,39 @@
 import * as React from 'react';
-import { useRef, useLayoutEffect } from 'react';
+import { useRef, useLayoutEffect, SyntheticEvent } from 'react';
 import { connect } from 'react-redux';
 import locationLogo from '../assets/icons/locationIcon.png';
 import restaurantLogo from '../assets/icons/foodIcon.png';
 import barLogo from '../assets/icons/bar.png';
 import selectedRestaurantLogo from '../assets/icons/selectedRestaurantIcon.png';
 import selectedBar from '../assets/icons/selectedBarIcon.png';
+import { AppDispatch, RootState } from '../redux/store';
+import { SelectedRestaurant, UserLocation } from '../types';
 
 const mapStyles = { height: '100%', width: '100%' };
 
-const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
+interface MapProps {
+  dispatch: AppDispatch;
+  nearbyRestaurantData: SelectedRestaurant[];
+  userLocation: UserLocation;
+}
+
+const DisplayMapFC = ({
+  dispatch,
+  nearbyRestaurantData,
+  userLocation,
+}: MapProps): React.ReactElement => {
   const { latitude: userLat, longitude: userLong } = userLocation;
   const mapRef = useRef(null);
-  const { H } = window;
+  const { H }: any = window;
 
-  function removeOtherSelectedIcons(element) {
+  function removeOtherSelectedIcons(element: any) {
     const { id } = element;
     const regex = /Selected/g;
     return id.replace(regex, '');
   }
 
   useLayoutEffect(() => {
-    const moveToUserPos = map => {
+    const moveToUserPos = (map: any) => {
       // Create an icon, an object holding the latitude and longitude, and a marker:
       const icon = new H.map.Icon(locationLogo);
       const coords = { lat: userLat, lng: userLong };
@@ -51,7 +63,7 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
 
     const ui = H.ui.UI.createDefault(hMap, defaultLayers);
 
-    const markerInteraction = marker => {
+    const markerInteraction = (marker: any) => {
       const markerReference = {
         barMarker: {
           id: 'barMarkerSelected',
@@ -70,12 +82,19 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
           icon: restaurantLogo,
         },
       };
+      const getKeyValue = (key: string) => (obj: Record<string, any>) =>
+        obj[key];
       marker.addEventListener(
         'tap',
-        e => {
-          const newIcon = new H.map.Icon(markerReference[e.target.id].icon);
+        (e: any) => {
+          const targetId: string = e.target.id;
+          // const newIcon = new H.map.Icon(markerReference[targetID].icon);
+          const newIcon = new H.map.Icon(
+            getKeyValue(targetId)(markerReference).icon
+          );
           marker.setIcon(newIcon);
-          marker.id = markerReference[e.target.id].id;
+          marker.id = getKeyValue(targetId)(markerReference).id;
+          // marker.id = markerReference[e.target.id].id;
           const mapObjects = hMap.getObjects();
           dispatch({
             type: 'SET_SELECTED_RESTSURANT',
@@ -83,7 +102,7 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
           });
 
           const userPositionMarker = mapObjects.find(
-            mark => mark.id === 'userPosition'
+            (mark: any) => mark.id === 'userPosition'
           );
 
           const distance = e.target.b.distance(userPositionMarker.b);
@@ -93,7 +112,8 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
             payload: `${Math.floor(distance) / 100}km`,
           });
 
-          const found = mapObjects.find(el => {
+          // eslint-disable-next-line array-callback-return
+          const found = mapObjects.find((el: any) => {
             const isSelected =
               el.id === 'restaurantMarkerSelected' ||
               el.id === 'barMarkerSelected';
@@ -102,7 +122,9 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
             }
           });
           if (found) {
-            const foundIcon = new H.map.Icon(markerReference[found.id].icon);
+            const foundIcon = new H.map.Icon(
+              getKeyValue(found.id)(markerReference).icon
+            );
             found.setIcon(foundIcon);
             found.id = removeOtherSelectedIcons(found);
           }
@@ -119,6 +141,7 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
     window.addEventListener('resize', () => hMap.getViewPort().resize());
 
     if (nearbyRestaurantData.length > 0) {
+      // eslint-disable-next-line array-callback-return
       nearbyRestaurantData.map(datapoint => {
         const isBar = datapoint?.types.includes('bar');
         const icon = new H.map.Icon(isBar ? barLogo : restaurantLogo);
@@ -158,7 +181,7 @@ const DisplayMapFC = ({ dispatch, nearbyRestaurantData, userLocation }) => {
   return <div className="map" ref={mapRef} style={mapStyles} />;
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootState) => ({
   nearbyRestaurantData: state.nearbyRestaurantData,
   userLocation: state.userLocation,
 });

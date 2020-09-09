@@ -1,8 +1,14 @@
 import { createStore } from 'redux';
 import getFromLocalStorage from '../utils/getFromLocalStorage';
 
+interface Action {
+  type: string;
+  payload?: any;
+}
+
 const initialState = {
   closePanel: false,
+  panelOpen: false,
   nearbyRestaurantData: getFromLocalStorage('nearbyRestaurants') || [],
   selectedRestaurant: {},
   userLocation: getFromLocalStorage('userCoordinates') || {
@@ -11,7 +17,7 @@ const initialState = {
   },
 };
 
-const appReducer = (state = initialState, action) => {
+const appReducer = (state = initialState, action: Action) => {
   const { payload, type } = action;
   switch (type) {
     case 'SET_USERLOCATION':
@@ -56,5 +62,8 @@ const appReducer = (state = initialState, action) => {
 };
 
 const store = createStore(appReducer);
+
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof appReducer>;
 
 export default store;

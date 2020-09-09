@@ -1,9 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import { connect } from 'react-redux';
 import StarIcon from './StarIcon';
 import CloseIcon from './CloseIcon';
+import { RootState } from '../redux/store';
+import { InfoPanelProps } from '../types';
+import transformText from '../utils/transformText';
 
 const StyledStar = styled(StarIcon)`
   height: 1.5rem;
@@ -24,7 +26,9 @@ const StyledClose = styled(CloseIcon)`
   }
 `;
 
-const Container = styled.div`
+const Container = styled.div.attrs(({ panelOpen }: { panelOpen: boolean }) => ({
+  panelOpen,
+}))`
   position: absolute;
   left: 0;
   top: 0;
@@ -66,7 +70,9 @@ const H2 = styled.h2`
   padding: 0;
 `;
 
-const P = styled.p`
+const P = styled.p.attrs(({ large }: { large: boolean }) => ({
+  large,
+}))`
   font-weight: bold;
   font-size: ${({ large }) => (large ? '2rem' : '1.5rem')};
   margin: 0;
@@ -119,22 +125,11 @@ const TypeBox = styled.div`
   }
 `;
 
-const fetchSelectedImage = async photoRef => {
-  try {
-    return await axios.post('http://localhost:8080/restaurantImage', {
-      photoRef,
-      maxWidth: 400,
-      maxHeight: 250,
-    });
-  } catch (err) {
-    console.log(err.message);
-  }
-};
-
-const transformText = string =>
-  string.charAt(0).toUpperCase() + string.substring(1).replace(/_/g, ' ');
-
-const InfoPanel = ({ dispatch, panelOpen, selectedRestaurant }) => {
+const InfoPanel = ({
+  dispatch,
+  panelOpen,
+  selectedRestaurant,
+}: InfoPanelProps) => {
   const userRating = Math.floor(selectedRestaurant?.rating);
   const photoReference = selectedRestaurant?.photoReference;
 
@@ -193,7 +188,7 @@ const InfoPanel = ({ dispatch, panelOpen, selectedRestaurant }) => {
   );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: RootState) => ({
   panelOpen: state.panelOpen,
   selectedRestaurant: state.selectedRestaurant,
 });
