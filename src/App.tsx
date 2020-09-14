@@ -6,7 +6,7 @@ import Header from './components/Header';
 import CrunchoIcon from './components/CrunchoIcon';
 import DisplayMapFC from './components/Map';
 import InfoPanel from './components/InfoPanel';
-import saveToLocalStorage from './utils/saveToLocalStorage';
+// import saveToLocalStorage from './utils/saveToLocalStorage';
 import { RootState } from './redux/store';
 import { AppProps } from './types';
 
@@ -51,7 +51,7 @@ function App({ dispatch, userLocation }: AppProps) {
   useEffect(() => {
     const setPosition = (position: any) => {
       const { latitude, longitude } = position.coords;
-      saveToLocalStorage('userCoordinates', { latitude, longitude });
+      // saveToLocalStorage('userCoordinates', { latitude, longitude });
       dispatch({
         type: 'SET_USERLOCATION',
         payload: { lat: latitude, lng: longitude },
@@ -62,12 +62,14 @@ function App({ dispatch, userLocation }: AppProps) {
       if (navigator.geolocation) {
         return new Promise((res, rej) => {
           const options = { timeout: 6000 };
-          navigator.geolocation.getCurrentPosition(res, errorHandler, options);
+          navigator.geolocation.getCurrentPosition(res, rej);
         });
       }
     };
+
     const userPosition = async () => {
       const position = await getPosition();
+      console.log(position, '****************');
       return position;
     };
     userPosition().then(res => {
@@ -79,7 +81,7 @@ function App({ dispatch, userLocation }: AppProps) {
   useEffect(() => {
     const getNearbyRestaurants = async () => {
       try {
-        return await axios.post('http://localhost:8080/nearbyRestaurants', {
+        return await axios.post('http://localhost:8082/nearbyRestaurants', {
           latitude: userLat,
           longitude: userLong,
         });
@@ -89,7 +91,7 @@ function App({ dispatch, userLocation }: AppProps) {
     };
     if (userLat && userLong) {
       getNearbyRestaurants().then((res: any = {}) => {
-        saveToLocalStorage('nearbyRestaurants', res.data);
+        // saveToLocalStorage('nearbyRestaurants', res.data);
         dispatch({ type: 'SET_RESTAURANT_DATA', payload: res.data });
       });
     }

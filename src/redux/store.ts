@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import getFromLocalStorage from '../utils/getFromLocalStorage';
+// import getFromLocalStorage from '../utils/getFromLocalStorage';
 
 interface Action {
   type: string;
@@ -9,9 +9,9 @@ interface Action {
 const initialState = {
   closePanel: false,
   panelOpen: false,
-  nearbyRestaurantData: getFromLocalStorage('nearbyRestaurants') || [],
+  nearbyRestaurantData: [],
   selectedRestaurant: {},
-  userLocation: getFromLocalStorage('userCoordinates') || {
+  userLocation: {
     latitude: '',
     longitude: '',
   },
